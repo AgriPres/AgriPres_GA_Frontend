@@ -8,7 +8,7 @@ type NavbarProps = {
 
 const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
     const [isOpen, setIsOpen] = useState(false);
-
+    
     // Función para cerrar el menú al hacer clic en un link
   const closeMenu = () => setIsOpen(false);
 
@@ -18,8 +18,12 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
         {/* Logo */}
 
         <Link to="/" onClick={closeMenu} className="text-2xl font-black text-white tracking-tighter">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-lime-500 rounded-lg rotate-3"></div>
+        <div className="flex items-center gap-1">
+          <div className="rounded-lg">
+            <img src="/agripresWhite.png" alt="Logo" className="w-18 h-18" />
+
+
+          </div>
           <span className="text-2xl font-bold text-stone-200 tracking-tight">AgriPres Gestiones Agrícolas</span>
         </div>
         </Link>
@@ -31,6 +35,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
           <Link to="/" className=" font-bold">INICIO</Link>
           <Link to="/About" className=" font-bold">INFORMACIÓN</Link>
           <Link to="/AboutAgripres" className=" font-bold">SOBRE AGRIPRES</Link>
+          <Link to="/Dashboard" className=" font-bold">Dashboard</Link>
+          <Link to="/DashboardAdmin" className=" font-bold">Dashboard Admin</Link>
           <Link
             to="/"
             onClick={() => {

@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Footer from './components/Footer'
 import About from './components/About'
 import AboutAgripres from './components/AboutAgripres'
+import Dashboard from './components/Dashboard'
+import DashboardAdmin from './components/DashboardAdmin'
 
 type HomeProps = {
   showLogin: boolean
@@ -96,6 +98,8 @@ const App: React.FC = () => {
             <Route path="/" element={<Home showLogin={showLogin} setShowLogin={setShowLogin} />} />
             <Route path="/About" element={<About />} />
             <Route path="/AboutAgripres" element={<AboutAgripres />} />
+            <Route path="/Dashboard" element={<Dashboard />} />
+            <Route path="/DashboardAdmin" element={<DashboardAdmin />} />
             
           </Routes>
         </main>

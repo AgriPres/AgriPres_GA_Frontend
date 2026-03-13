@@ -28,7 +28,11 @@ const About: React.FC = () => {
     <section className="pt-32 pb-20 px-6 min-h-screen bg-stone-100 text-slate-900">
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col md:flex-row items-center gap-10 mb-12">
-          <div className="w-44 h-44 bg-gradient-to-tr from-lime-500 to-emerald-400 rounded-3xl rotate-2 flex-shrink-0 shadow-2xl shadow-lime-500/20"></div>
+          <div className="rounded-lg">
+            <img src="/agripresGreen.png" alt="Logo" className="w-100 h-40" />
+
+
+          </div>
           <div>
             <h2 className="text-4xl text-black font-black mb-4">Sobre AgriPres Gestiones Agricolas</h2>
             <p className="text-slate-700 text-lg leading-relaxed">
