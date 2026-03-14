@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.tsx'; // Para actualizar el esta
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth(); // Función que creamos en el contexto
   const navigate = useNavigate();
@@ -14,14 +14,15 @@ const LoginPage = () => {
 
     try {
       // 1. Enviamos los datos al backend
-      const response = await api.post('/api/login', { email, password });
+      const response = await api.post('/api/auth/login', { username, password });
 
       // 2. Si el backend responde OK, guardamos los datos del usuario en el contexto
       // Nota: La cookie se guarda sola en el navegador, no hay que tocarla aquí.
       login(response.data.user);
 
       // 3. Redirigimos al usuario al inicio o dashboard
-      navigate('/Dashboard');
+      const isAdmin = response.data?.user?.isAdmin === true || response.data?.user?.username === 'admin';
+      navigate(isAdmin ? '/DashboardAdmin' : '/Dashboard');
       
       alert('¡Bienvenido de nuevo!');
     } catch (error: any) {
@@ -39,12 +40,12 @@ const LoginPage = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
         
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className="block text-sm font-medium mb-1">Usuario</label>
           <input
-            type="email"
+            type="text"
             className="w-full p-2 border rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>

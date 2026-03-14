@@ -1,11 +1,13 @@
 import React, { useState } from 'react' // Importamos el Hook para el estado
 import Navbar from './components/Navbar'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Footer from './components/Footer'
 import About from './components/About'
 import AboutAgripres from './components/AboutAgripres'
 import Dashboard from './components/Dashboard'
 import DashboardAdmin from './components/DashboardAdmin'
+import api from './api/axios'
 
 type HomeProps = {
   showLogin: boolean
@@ -13,6 +15,32 @@ type HomeProps = {
 }
 
 const Home: React.FC<HomeProps> = ({ showLogin, setShowLogin }) => {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMessage('')
+    setIsSubmitting(true)
+
+    try {
+      const response = await api.post('/api/auth/login', { username, password })
+      const loggedUser = response.data?.user
+      const isAdmin = loggedUser?.isAdmin === true || loggedUser?.username === 'admin'
+
+      setShowLogin(false)
+      setUsername('')
+      setPassword('')
+      navigate(isAdmin ? '/DashboardAdmin' : '/Dashboard')
+    } catch (error: any) {
+      setErrorMessage(error?.response?.data?.error || 'No se pudo iniciar sesion')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="pt-40 pb-24 px-6">
@@ -45,7 +73,7 @@ const Home: React.FC<HomeProps> = ({ showLogin, setShowLogin }) => {
               ✕
             </button>
             <h2 className="text-xl font-bold text-slate-900 mb-4">Accede a tu cuenta</h2>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleLogin}>
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-1">
                   Usuario
@@ -54,7 +82,10 @@ const Home: React.FC<HomeProps> = ({ showLogin, setShowLogin }) => {
                   id="username"
                   type="text"
                   placeholder="Tu usuario"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full rounded-lg text-black border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+                  required
                 />
               </div>
               <div>
@@ -65,14 +96,21 @@ const Home: React.FC<HomeProps> = ({ showLogin, setShowLogin }) => {
                   id="password"
                   type="password"
                   placeholder="Tu contraseña"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-lg border text-black border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
+                  required
                 />
               </div>
+              {errorMessage && (
+                <p className="text-sm text-red-600">{errorMessage}</p>
+              )}
               <button
-                type="button"
+                type="submit"
+                disabled={isSubmitting}
                 className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-lg transition"
               >
-                Entrar
+                {isSubmitting ? 'Entrando...' : 'Entrar'}
               </button>
             </form>
           </div>
