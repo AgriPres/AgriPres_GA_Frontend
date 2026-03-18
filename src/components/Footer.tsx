@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
 					{/* Marca */}
 					<div className="space-y-4">
 						<div className="flex items-center gap-3">
-							<div className="w-10 h-10 bg-lime-500 rounded-lg rotate-3"></div>
+							<img src="/agripresWhite.png" alt="Logo" className="w-18 h-18" />
 							<div>
 								<p className="text-xl font-bold tracking-tight">AgriPres</p>
 								<p className="text-sm text-slate-400">Gestiones Agrícolas</p>
