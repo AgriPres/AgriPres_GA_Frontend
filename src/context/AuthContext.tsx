@@ -20,14 +20,30 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AUTH_STORAGE_KEY = 'agripres-auth-user';
 
 const normalizeUser = (userData: User): User => ({
   ...userData,
   isAdmin: userData.isAdmin === true || userData.username === 'admin',
 });
 
+const getStoredUser = (): User | null => {
+  const storedUser = sessionStorage.getItem(AUTH_STORAGE_KEY);
+
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    return normalizeUser(JSON.parse(storedUser) as User);
+  } catch {
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => getStoredUser());
   const [loading, setLoading] = useState(true);
 
   // Al cargar la web, preguntamos al backend si hay una cookie válida
@@ -35,9 +51,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkUser = async () => {
       try {
         const res = await api.get('/api/me'); // Endpoint que verifica la sesión
-        setUser(normalizeUser(res.data.user));
-      } catch (err) {
-        setUser(null);
+        if (res.data?.user) {
+          const normalizedUser = normalizeUser(res.data.user);
+          setUser(normalizedUser);
+          sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(normalizedUser));
+        }
+      } catch {
+        // Si el backend no expone sesión por cookie, mantenemos la sesión del navegador.
       } finally {
         setLoading(false);
       }
@@ -45,13 +65,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, []);
 
-  const login = (userData: User) => setUser(normalizeUser(userData));
+  const login = (userData: User) => {
+    const normalizedUser = normalizeUser(userData);
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(normalizedUser));
+    setUser(normalizedUser);
+  };
   const logout = async () => {
     try {
       await api.post('/api/logout'); // Avisamos al backend para borrar la cookie
     } catch {
       // Aunque falle el backend, cerramos la sesión local para bloquear el acceso en frontend.
     } finally {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
       setUser(null);
     }
   };

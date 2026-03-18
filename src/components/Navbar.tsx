@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react' // Importamos los iconos
+import { useAuth } from '../context/AuthContext'
 
 type NavbarProps = {
   onLoginClick: () => void
@@ -8,9 +9,17 @@ type NavbarProps = {
 
 const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
     const [isOpen, setIsOpen] = useState(false);
-    
+    const { isAuthenticated, logout, loading } = useAuth()
+    const navigate = useNavigate()
+
     // Función para cerrar el menú al hacer clic en un link
   const closeMenu = () => setIsOpen(false);
+
+  const handleLogout = async () => {
+    closeMenu()
+    await logout()
+    navigate('/')
+  }
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-lime-700/80 backdrop-blur-md border-b border-lime-500 z-50">
@@ -37,16 +46,27 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
           <Link to="/AboutAgripres" className=" font-bold">SOBRE AGRIPRES</Link>
           {/* <Link to="/Dashboard" className=" font-bold">Dashboard</Link> */} 
           {/*<Link to="/DashboardAdmin" className=" font-bold">Dashboard Admin</Link>*/}
-          <Link
-            to="/"
-            onClick={() => {
-              closeMenu()
-              onLoginClick()
-            }}
-            className="bg-lime-700 hover:bg-lime-600 text-stone-100 text-xl px-5 py-1 rounded-full transition-all hover:scale-110 active:scale-100 font-bold border-2 border-lime-800 "
-          >
-            INICIA SESIÓN
-          </Link>
+          {!loading && !isAuthenticated && (
+            <Link
+              to="/"
+              onClick={() => {
+                closeMenu()
+                onLoginClick()
+              }}
+              className="bg-lime-700 hover:bg-lime-600 text-stone-100 text-xl px-5 py-1 rounded-full transition-all hover:scale-110 active:scale-100 font-bold border-2 border-lime-800 "
+            >
+              INICIA SESIÓN
+            </Link>
+          )}
+          {!loading && isAuthenticated && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="bg-red-700 hover:bg-red-600 text-stone-100 text-xl px-5 py-1 rounded-full transition-all hover:scale-110 active:scale-100 font-bold border-2 border-red-800"
+            >
+              CERRAR SESIÓN
+            </button>
+          )}
         
 
 
@@ -95,16 +115,27 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
             {/* Línea decorativa */}
             <div className="w-8 h-[1px] bg-blue-500/50 my-4"></div>
 
-            <Link
-              to="/"
-              onClick={() => {
-                closeMenu()
-                onLoginClick()
-              }}
-              className="text-sm tracking-widest border border-blue-500 text-blue-400 px-10 py-3 rounded-full hover:bg-blue-500 hover:text-white transition-all active:scale-95"
-            >
-              INICIA SESIÓN
-            </Link>
+            {!loading && !isAuthenticated && (
+              <Link
+                to="/"
+                onClick={() => {
+                  closeMenu()
+                  onLoginClick()
+                }}
+                className="text-sm tracking-widest border border-blue-500 text-blue-400 px-10 py-3 rounded-full hover:bg-blue-500 hover:text-white transition-all active:scale-95"
+              >
+                INICIA SESIÓN
+              </Link>
+            )}
+            {!loading && isAuthenticated && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-sm tracking-widest border border-red-500 text-red-400 px-10 py-3 rounded-full hover:bg-red-500 hover:text-white transition-all active:scale-95"
+              >
+                CERRAR SESIÓN
+              </button>
+            )}
         </div>
         </div>
         
