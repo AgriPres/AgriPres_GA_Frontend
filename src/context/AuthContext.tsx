@@ -7,17 +7,24 @@ interface User {
   id: string;
   name: string;
   email: string;
+  isAdmin?: boolean;
+  username?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (userData: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const normalizeUser = (userData: User): User => ({
+  ...userData,
+  isAdmin: userData.isAdmin === true || userData.username === 'admin',
+});
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -28,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkUser = async () => {
       try {
         const res = await api.get('/api/me'); // Endpoint que verifica la sesión
-        setUser(res.data.user);
+        setUser(normalizeUser(res.data.user));
       } catch (err) {
         setUser(null);
       } finally {
@@ -38,10 +45,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, []);
 
-  const login = (userData: User) => setUser(userData);
-  const logout = () => {
-    api.post('/api/logout'); // Avisamos al backend para borrar la cookie
-    setUser(null);
+  const login = (userData: User) => setUser(normalizeUser(userData));
+  const logout = async () => {
+    try {
+      await api.post('/api/logout'); // Avisamos al backend para borrar la cookie
+    } catch {
+      // Aunque falle el backend, cerramos la sesión local para bloquear el acceso en frontend.
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

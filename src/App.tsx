@@ -1,13 +1,41 @@
 import React, { useState } from 'react' // Importamos el Hook para el estado
 import Navbar from './components/Navbar'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Footer from './components/Footer'
 import About from './components/About'
 import AboutAgripres from './components/AboutAgripres'
 import Dashboard from './components/Dashboard'
 import DashboardAdmin from './components/DashboardAdmin'
 import api from './api/axios'
+import { useAuth } from './context/AuthContext'
+
+const ProtectedRoute = ({
+  children,
+  requireAdmin = false,
+}: {
+  children: React.ReactElement
+  requireAdmin?: boolean
+}) => {
+  const { user, isAuthenticated, loading } = useAuth()
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-slate-700">Cargando...</div>
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace state={{ loginRequired: true }} />
+  }
+
+  if (requireAdmin && !user?.isAdmin) {
+    return <Navigate to="/Dashboard" replace />
+  }
+
+  if (!requireAdmin && user?.isAdmin) {
+    return <Navigate to="/DashboardAdmin" replace />
+  }
+
+  return children
+}
 
 type HomeProps = {
   showLogin: boolean
@@ -15,11 +43,16 @@ type HomeProps = {
 }
 
 const Home: React.FC<HomeProps> = ({ showLogin, setShowLogin }) => {
+  const { login, isAuthenticated, loading, user } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
+
+  if (!loading && isAuthenticated) {
+    return <Navigate to={user?.isAdmin ? '/DashboardAdmin' : '/Dashboard'} replace />
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +63,12 @@ const Home: React.FC<HomeProps> = ({ showLogin, setShowLogin }) => {
       const response = await api.post('/api/auth/login', { username, password })
       const loggedUser = response.data?.user
       const isAdmin = loggedUser?.isAdmin === true || loggedUser?.username === 'admin'
+      const normalizedUser = {
+        ...loggedUser,
+        isAdmin,
+      }
 
+      login(normalizedUser)
       setShowLogin(false)
       setUsername('')
       setPassword('')
@@ -136,8 +174,23 @@ const App: React.FC = () => {
             <Route path="/" element={<Home showLogin={showLogin} setShowLogin={setShowLogin} />} />
             <Route path="/About" element={<About />} />
             <Route path="/AboutAgripres" element={<AboutAgripres />} />
-            <Route path="/Dashboard" element={<Dashboard />} />
-            <Route path="/DashboardAdmin" element={<DashboardAdmin />} />
+            <Route
+              path="/Dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/DashboardAdmin"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <DashboardAdmin />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
             
           </Routes>
         </main>

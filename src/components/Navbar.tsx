@@ -35,8 +35,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
           <Link to="/" className=" font-bold">INICIO</Link>
           <Link to="/About" className=" font-bold">INFORMACIÓN</Link>
           <Link to="/AboutAgripres" className=" font-bold">SOBRE AGRIPRES</Link>
-          <Link to="/Dashboard" className=" font-bold">Dashboard</Link>
-          <Link to="/DashboardAdmin" className=" font-bold">Dashboard Admin</Link>
+          {/* <Link to="/Dashboard" className=" font-bold">Dashboard</Link> */} 
+          {/*<Link to="/DashboardAdmin" className=" font-bold">Dashboard Admin</Link>*/}
           <Link
             to="/"
             onClick={() => {
