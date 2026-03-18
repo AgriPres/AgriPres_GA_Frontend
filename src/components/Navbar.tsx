@@ -62,7 +62,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
             <button
               type="button"
               onClick={handleLogout}
-              className="bg-red-700 hover:bg-red-600 text-stone-100 text-xl px-5 py-1 rounded-full transition-all hover:scale-110 active:scale-100 font-bold border-2 border-red-800"
+              className="bg-lime-700 hover:bg-lime-600 text-stone-100 text-xl px-5 py-1 rounded-full transition-all hover:scale-110 active:scale-100 font-bold border-2 border-lime-800"
             >
               CERRAR SESIÓN
             </button>
